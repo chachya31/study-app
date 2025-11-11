@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # MySQL データベース
+  mysql:
+    image: mysql:8.0
+    container_name: film-actor-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: film_actor_db
+      MYSQL_USER: filmuser
+      MYSQL_PASSWORD: filmpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/scripts/create_mysql_tables.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - film-actor-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # バックエンド API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: film-actor-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # データベース設定
+      DATABASE_TYPE: mysql
+      
+      # MySQL 設定
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: film_actor_db
+      MYSQL_USER: filmuser
+      MYSQL_PASSWORD: filmpassword
+      
+      # AWS 設定（実際の値に置き換えてください）
+      AWS_REGION: ${AWS_REGION:-ap-northeast-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      
+      # AWS Cognito 設定
+      COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID}
+      COGNITO_CLIENT_ID: ${COGNITO_CLIENT_ID}
+      COGNITO_REGION: ${COGNITO_REGION:-ap-northeast-1}
+      
+      # CORS 設定
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      
+      # アプリケーション設定
+      APP_NAME: Film Actor Management API
+      DEBUG: ${DEBUG:-false}
+      HOST: 0.0.0.0
+      PORT: 8000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - film-actor-network
+    volumes:
+      - ./backend:/app
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # フロントエンド
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: film-actor-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - film-actor-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+  # DynamoDB Local（オプション - ローカル開発用）
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: film-actor-dynamodb
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    networks:
+      - film-actor-network
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    volumes:
+      - dynamodb_data:/home/dynamodblocal/data
+    profiles:
+      - dynamodb
+
+networks:
+  film-actor-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  dynamodb_data:
+    driver: local
