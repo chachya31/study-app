@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
-import './Header.css';
 
 /**
  * Header Component
@@ -30,43 +29,53 @@ export const Header = () => {
   const isActorsPage = location.pathname.startsWith('/actors');
 
   return (
-    <header className="app-header">
-      <div className="header-container">
-        <div className="header-left">
-          <h1 className="header-title">Film & Actor Management</h1>
-          <nav className="header-nav">
+    <header className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-8">
+            <h1 className="text-xl font-bold text-gray-800">Film & Actor Management</h1>
+            <nav className="flex space-x-4">
+              <button 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                  isFilmsPage 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+                onClick={() => navigate('/films')}
+              >
+                Films
+              </button>
+              <button 
+                className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                  isActorsPage 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+                onClick={() => navigate('/actors')}
+              >
+                Actors
+              </button>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-700">{user.username}</span>
             <button 
-              className={`nav-link ${isFilmsPage ? 'active' : ''}`}
-              onClick={() => navigate('/films')}
+              className="p-2 rounded-full hover:bg-gray-100 transition" 
+              onClick={handleUserInfo}
+              title="ユーザー情報"
             >
-              Films
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </button>
             <button 
-              className={`nav-link ${isActorsPage ? 'active' : ''}`}
-              onClick={() => navigate('/actors')}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition" 
+              onClick={handleLogout}
             >
-              Actors
+              ログアウト
             </button>
-          </nav>
-        </div>
-        <div className="header-right">
-          <span className="user-name">{user.username}</span>
-          <button 
-            className="btn-user-info" 
-            onClick={handleUserInfo}
-            title="ユーザー情報"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </button>
-          <button 
-            className="btn-logout" 
-            onClick={handleLogout}
-          >
-            ログアウト
-          </button>
+          </div>
         </div>
       </div>
     </header>

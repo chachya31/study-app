@@ -4,7 +4,6 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { useToast } from "../contexts";
 import type { LoginRequest } from "../types";
 import { useEffect } from "react";
-import "./LoginPage.css";
 
 /**
  * LoginPage Component
@@ -72,21 +71,23 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1 className="login-title">Film & Actor Management</h1>
-        <h2 className="login-subtitle">ログイン</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">Film & Actor Management</h1>
+        <h2 className="text-xl text-center text-gray-600 mb-6">ログイン</h2>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Username field */}
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
               ユーザー名
             </label>
             <input
               id="username"
               type="text"
-              className={`form-input ${errors.username ? "form-input-error" : ""}`}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                errors.username ? "border-red-500" : "border-gray-300"
+              }`}
               {...register("username", {
                 required: "ユーザー名は必須です",
                 minLength: {
@@ -98,19 +99,21 @@ export const LoginPage = () => {
               autoComplete="username"
             />
             {errors.username && (
-              <span className="form-error">{errors.username.message}</span>
+              <span className="text-red-500 text-sm mt-1 block">{errors.username.message}</span>
             )}
           </div>
 
           {/* Password field */}
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               パスワード
             </label>
             <input
               id="password"
               type="password"
-              className={`form-input ${errors.password ? "form-input-error" : ""}`}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              }`}
               {...register("password", {
                 required: "パスワードは必須です",
                 minLength: {
@@ -122,13 +125,13 @@ export const LoginPage = () => {
               autoComplete="current-password"
             />
             {errors.password && (
-              <span className="form-error">{errors.password.message}</span>
+              <span className="text-red-500 text-sm mt-1 block">{errors.password.message}</span>
             )}
           </div>
 
           {/* API error message */}
           {error && (
-            <div className="alert alert-error">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
@@ -136,7 +139,7 @@ export const LoginPage = () => {
           {/* Submit button */}
           <button
             type="submit"
-            className="btn btn-primary"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
             {isSubmitting ? "ログイン中..." : "ログイン"}

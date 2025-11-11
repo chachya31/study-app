@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import "./Toast.css";
 
 /**
  * Toast Component
@@ -30,13 +29,27 @@ const Toast = ({ id, message, type, duration = 5000, onClose }: ToastProps) => {
     onClose(id);
   };
 
+  const typeStyles = {
+    error: "bg-red-50 border-red-200 text-red-800",
+    success: "bg-green-50 border-green-200 text-green-800",
+    warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+    info: "bg-blue-50 border-blue-200 text-blue-800",
+  };
+
   return (
-    <div className={`toast toast-${type}`} role="alert">
-      <div className="toast-content">
-        <span className="toast-icon">{getIcon(type)}</span>
-        <span className="toast-message">{message}</span>
+    <div 
+      className={`flex items-center justify-between p-4 mb-3 border rounded-lg shadow-lg min-w-[300px] max-w-md ${typeStyles[type]}`} 
+      role="alert"
+    >
+      <div className="flex items-center space-x-3">
+        <span className="text-xl font-bold">{getIcon(type)}</span>
+        <span className="text-sm font-medium">{message}</span>
       </div>
-      <button className="toast-close" onClick={handleClose} aria-label="Close">
+      <button 
+        className="ml-4 text-2xl font-bold hover:opacity-70 transition" 
+        onClick={handleClose} 
+        aria-label="Close"
+      >
         ×
       </button>
     </div>

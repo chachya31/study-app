@@ -10,7 +10,6 @@ import {
   ActorListPage,
   ActorFormPage,
 } from './pages';
-import './App.css';
 
 /**
  * Create QueryClient instance for TanStack Query
