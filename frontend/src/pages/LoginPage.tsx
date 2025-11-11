@@ -1,8 +1,7 @@
-import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useToast } from "../contexts";
-import type { LoginRequest } from "../types";
+import { useLoginStore } from "../stores";
 import { useEffect } from "react";
 
 /**
@@ -22,11 +21,17 @@ export const LoginPage = () => {
   const { login, isAuthenticated, error, clearError } = useAuthContext();
   const { showError, showSuccess } = useToast();
   
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginRequest>();
+  const { 
+    username, 
+    password, 
+    errors, 
+    isSubmitting,
+    setUsername, 
+    setPassword, 
+    validate, 
+    setSubmitting, 
+    reset 
+  } = useLoginStore();
 
   // Show error toast when there's a login error
   useEffect(() => {
@@ -59,14 +64,21 @@ export const LoginPage = () => {
    * 
    * Requirements: 6.2, 6.7
    */
-  const onSubmit = async (data: LoginRequest) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    
+    setSubmitting(true);
     try {
-      await login(data);
+      await login({ username, password });
       showSuccess("Login successful!");
+      reset();
       // Navigation will happen automatically via useEffect when isAuthenticated changes
     } catch (err) {
       // Error is handled by the auth context and displayed via toast
       console.error("Login failed:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -76,7 +88,7 @@ export const LoginPage = () => {
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">Film & Actor Management</h1>
         <h2 className="text-xl text-center text-gray-600 mb-6">ログイン</h2>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           {/* Username field */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -85,21 +97,16 @@ export const LoginPage = () => {
             <input
               id="username"
               type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                 errors.username ? "border-red-500" : "border-gray-300"
               }`}
-              {...register("username", {
-                required: "ユーザー名は必須です",
-                minLength: {
-                  value: 3,
-                  message: "ユーザー名は3文字以上である必要があります",
-                },
-              })}
               disabled={isSubmitting}
               autoComplete="username"
             />
             {errors.username && (
-              <span className="text-red-500 text-sm mt-1 block">{errors.username.message}</span>
+              <span className="text-red-500 text-sm mt-1 block">{errors.username}</span>
             )}
           </div>
 
@@ -111,21 +118,16 @@ export const LoginPage = () => {
             <input
               id="password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                 errors.password ? "border-red-500" : "border-gray-300"
               }`}
-              {...register("password", {
-                required: "パスワードは必須です",
-                minLength: {
-                  value: 6,
-                  message: "パスワードは6文字以上である必要があります",
-                },
-              })}
               disabled={isSubmitting}
               autoComplete="current-password"
             />
             {errors.password && (
-              <span className="text-red-500 text-sm mt-1 block">{errors.password.message}</span>
+              <span className="text-red-500 text-sm mt-1 block">{errors.password}</span>
             )}
           </div>
 

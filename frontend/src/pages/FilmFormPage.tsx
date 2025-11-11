@@ -1,24 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { useFilm, useCreateFilm, useUpdateFilm } from "../hooks";
 import { useToast } from "../contexts";
 import { LoadingSpinner, Header } from "../components";
+import { useFilmFormStore } from "../stores";
 import { RATING_VALUES } from "../types";
-import type { Rating, FilmCreateRequest, FilmUpdateRequest } from "../types";
+import type { FilmCreateRequest, FilmUpdateRequest } from "../types";
 
 /**
  * FilmFormPage Component
  * Form for creating and editing films
  */
-
-interface FilmFormData {
-  title: string;
-  description?: string;
-  image_path?: string;
-  release_year?: number;
-  rating: Rating;
-}
 
 const FilmFormPage = () => {
   const navigate = useNavigate();
@@ -41,21 +33,22 @@ const FilmFormPage = () => {
     }
   }, [loadError, showError]);
 
-  // Form setup
+  // Form store
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    title,
+    description,
+    image_path,
+    release_year,
+    rating,
+    errors,
+    setTitle,
+    setDescription,
+    setImagePath,
+    setReleaseYear,
+    setRating,
+    validate,
     reset,
-  } = useForm<FilmFormData>({
-    defaultValues: {
-      title: "",
-      description: "",
-      image_path: "",
-      release_year: undefined,
-      rating: "G",
-    },
-  });
+  } = useFilmFormStore();
 
   // Populate form when editing
   useEffect(() => {
@@ -70,16 +63,19 @@ const FilmFormPage = () => {
     }
   }, [film, isEditMode, reset]);
 
-  const onSubmit = async (data: FilmFormData) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
     try {
       if (isEditMode && filmId) {
         // Update existing film
         const updateData: FilmUpdateRequest = {
-          title: data.title,
-          description: data.description || undefined,
-          image_path: data.image_path || undefined,
-          release_year: data.release_year || undefined,
-          rating: data.rating,
+          title,
+          description: description || undefined,
+          image_path: image_path || undefined,
+          release_year: release_year || undefined,
+          rating,
         };
         
         await updateFilmMutation.mutateAsync({
@@ -90,11 +86,11 @@ const FilmFormPage = () => {
       } else {
         // Create new film
         const createData: FilmCreateRequest = {
-          title: data.title,
-          description: data.description || undefined,
-          image_path: data.image_path || undefined,
-          release_year: data.release_year || undefined,
-          rating: data.rating,
+          title,
+          description: description || undefined,
+          image_path: image_path || undefined,
+          release_year: release_year || undefined,
+          rating,
         };
         
         await createFilmMutation.mutateAsync(createData);
@@ -136,7 +132,7 @@ const FilmFormPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={onSubmit} className="space-y-6">
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                   Title <span className="text-red-500">*</span>
@@ -144,19 +140,14 @@ const FilmFormPage = () => {
                 <input
                   id="title"
                   type="text"
-                  {...register("title", {
-                    required: "Title is required",
-                    minLength: {
-                      value: 1,
-                      message: "Title cannot be empty",
-                    },
-                  })}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     errors.title ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.title && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.title.message}</span>
+                  <span className="text-red-500 text-sm mt-1 block">{errors.title}</span>
                 )}
               </div>
 
@@ -166,21 +157,20 @@ const FilmFormPage = () => {
                 </label>
                 <select
                   id="rating"
-                  {...register("rating", {
-                    required: "Rating is required",
-                  })}
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value as any)}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     errors.rating ? "border-red-500" : "border-gray-300"
                   }`}
                 >
-                  {RATING_VALUES.map((rating) => (
-                    <option key={rating} value={rating}>
-                      {rating}
+                  {RATING_VALUES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
                     </option>
                   ))}
                 </select>
                 {errors.rating && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.rating.message}</span>
+                  <span className="text-red-500 text-sm mt-1 block">{errors.rating}</span>
                 )}
               </div>
 
@@ -191,23 +181,14 @@ const FilmFormPage = () => {
                 <input
                   id="release_year"
                   type="number"
-                  {...register("release_year", {
-                    valueAsNumber: true,
-                    min: {
-                      value: 1800,
-                      message: "Release year must be between 1800 and 2100",
-                    },
-                    max: {
-                      value: 2100,
-                      message: "Release year must be between 1800 and 2100",
-                    },
-                  })}
+                  value={release_year || ''}
+                  onChange={(e) => setReleaseYear(e.target.value ? Number(e.target.value) : undefined)}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     errors.release_year ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.release_year && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.release_year.message}</span>
+                  <span className="text-red-500 text-sm mt-1 block">{errors.release_year}</span>
                 )}
               </div>
 
@@ -218,14 +199,10 @@ const FilmFormPage = () => {
                 <textarea
                   id="description"
                   rows={4}
-                  {...register("description")}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 />
-                {errors.description && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.description.message}</span>
-                )}
               </div>
 
               <div>
@@ -235,15 +212,11 @@ const FilmFormPage = () => {
                 <input
                   id="image_path"
                   type="text"
-                  {...register("image_path")}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
-                    errors.image_path ? "border-red-500" : "border-gray-300"
-                  }`}
+                  value={image_path}
+                  onChange={(e) => setImagePath(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   placeholder="https://example.com/image.jpg"
                 />
-                {errors.image_path && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.image_path.message}</span>
-                )}
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">

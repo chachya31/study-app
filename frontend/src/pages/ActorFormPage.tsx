@@ -1,20 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { useActor, useCreateActor, useUpdateActor } from "../hooks";
 import { useToast } from "../contexts";
 import { LoadingSpinner, Header } from "../components";
+import { useActorFormStore } from "../stores";
 import type { ActorCreateRequest, ActorUpdateRequest } from "../types";
 
 /**
  * ActorFormPage Component
  * Form for creating and editing actors
  */
-
-interface ActorFormData {
-  first_name: string;
-  last_name: string;
-}
 
 const ActorFormPage = () => {
   const navigate = useNavigate();
@@ -37,18 +32,16 @@ const ActorFormPage = () => {
     }
   }, [loadError, showError]);
 
-  // Form setup
+  // Form store
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    first_name,
+    last_name,
+    errors,
+    setFirstName,
+    setLastName,
+    validate,
     reset,
-  } = useForm<ActorFormData>({
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-    },
-  });
+  } = useActorFormStore();
 
   // Populate form when editing
   useEffect(() => {
@@ -60,13 +53,16 @@ const ActorFormPage = () => {
     }
   }, [actor, isEditMode, reset]);
 
-  const onSubmit = async (data: ActorFormData) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
     try {
       if (isEditMode && actorId) {
         // Update existing actor
         const updateData: ActorUpdateRequest = {
-          first_name: data.first_name,
-          last_name: data.last_name,
+          first_name,
+          last_name,
         };
         
         await updateActorMutation.mutateAsync({
@@ -77,8 +73,8 @@ const ActorFormPage = () => {
       } else {
         // Create new actor
         const createData: ActorCreateRequest = {
-          first_name: data.first_name,
-          last_name: data.last_name,
+          first_name,
+          last_name,
         };
         
         await createActorMutation.mutateAsync(createData);
@@ -120,7 +116,7 @@ const ActorFormPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={onSubmit} className="space-y-6">
               <div>
                 <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
                   First Name <span className="text-red-500">*</span>
@@ -128,19 +124,14 @@ const ActorFormPage = () => {
                 <input
                   id="first_name"
                   type="text"
-                  {...register("first_name", {
-                    required: "First name is required",
-                    minLength: {
-                      value: 1,
-                      message: "First name cannot be empty",
-                    },
-                  })}
+                  value={first_name}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     errors.first_name ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.first_name && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.first_name.message}</span>
+                  <span className="text-red-500 text-sm mt-1 block">{errors.first_name}</span>
                 )}
               </div>
 
@@ -151,19 +142,14 @@ const ActorFormPage = () => {
                 <input
                   id="last_name"
                   type="text"
-                  {...register("last_name", {
-                    required: "Last name is required",
-                    minLength: {
-                      value: 1,
-                      message: "Last name cannot be empty",
-                    },
-                  })}
+                  value={last_name}
+                  onChange={(e) => setLastName(e.target.value)}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     errors.last_name ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.last_name && (
-                  <span className="text-red-500 text-sm mt-1 block">{errors.last_name.message}</span>
+                  <span className="text-red-500 text-sm mt-1 block">{errors.last_name}</span>
                 )}
               </div>
 
