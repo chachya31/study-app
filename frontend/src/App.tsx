@@ -10,7 +10,9 @@ import {
   ActorListPage,
   ActorFormPage,
 } from './pages';
-import './App.css';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import ProfilePage from './pages/ProfilePage';
 
 /**
  * Create QueryClient instance for TanStack Query
@@ -47,8 +49,20 @@ function App() {
         <ToastProvider>
           <AuthProvider>
             <Routes>
-            {/* Public route */}
+            {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+            {/* Protected routes - Profile */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Protected routes - Films */}
             <Route

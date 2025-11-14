@@ -30,6 +30,10 @@ export type {
   LoginRequest,
   LoginResponse,
   AuthToken,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ConfirmForgotPasswordRequest,
+  ConfirmForgotPasswordResponse,
 } from "./user";
 
 // API types

@@ -34,21 +34,32 @@ export const useAuth = () => {
 
   /**
    * Initialize authentication state on mount
-   * Checks if user has valid token in localStorage
+   * Checks if user has valid token in localStorage and fetches user info
    */
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const isAuth = authService.isAuthenticated();
       
       if (isAuth) {
-        // If authenticated, we could decode the token to get user info
-        // For now, we'll set a basic user object
-        setAuthState({
-          isAuthenticated: true,
-          isLoading: false,
-          user: { username: "user" }, // This could be decoded from JWT
-          error: null,
-        });
+        try {
+          // Fetch user info from backend
+          const userInfo = await authService.getUserInfo();
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            user: userInfo,
+            error: null,
+          });
+        } catch (error) {
+          // If token is invalid, clear auth state
+          authService.logout();
+          setAuthState({
+            isAuthenticated: false,
+            isLoading: false,
+            user: null,
+            error: null,
+          });
+        }
       } else {
         setAuthState({
           isAuthenticated: false,
@@ -74,17 +85,28 @@ export const useAuth = () => {
     try {
       const response = await authService.login(credentials);
       
-      // Set authenticated state
-      setAuthState({
-        isAuthenticated: true,
-        isLoading: false,
-        user: { username: credentials.username },
-        error: null,
-      });
+      // Fetch user info after successful login
+      try {
+        const userInfo = await authService.getUserInfo();
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: userInfo,
+          error: null,
+        });
+      } catch (userInfoError) {
+        // If we can't get user info, use basic info from credentials
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: { username: credentials.username },
+          error: null,
+        });
+      }
 
       return response;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "ログインに失敗しました";
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || "ログインに失敗しました";
       
       setAuthState({
         isAuthenticated: false,

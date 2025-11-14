@@ -1,25 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { useFilm, useCreateFilm, useUpdateFilm } from "../hooks";
 import { useToast } from "../contexts";
 import { LoadingSpinner, Header } from "../components";
+import { useFilmFormStore } from "../stores";
 import { RATING_VALUES } from "../types";
-import type { Rating, FilmCreateRequest, FilmUpdateRequest } from "../types";
-import "./FilmFormPage.css";
+import type { FilmCreateRequest, FilmUpdateRequest } from "../types";
 
 /**
  * FilmFormPage Component
  * Form for creating and editing films
  */
-
-interface FilmFormData {
-  title: string;
-  description?: string;
-  image_path?: string;
-  release_year?: number;
-  rating: Rating;
-}
 
 const FilmFormPage = () => {
   const navigate = useNavigate();
@@ -42,21 +33,22 @@ const FilmFormPage = () => {
     }
   }, [loadError, showError]);
 
-  // Form setup
+  // Form store
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    title,
+    description,
+    image_path,
+    release_year,
+    rating,
+    errors,
+    setTitle,
+    setDescription,
+    setImagePath,
+    setReleaseYear,
+    setRating,
+    validate,
     reset,
-  } = useForm<FilmFormData>({
-    defaultValues: {
-      title: "",
-      description: "",
-      image_path: "",
-      release_year: undefined,
-      rating: "G",
-    },
-  });
+  } = useFilmFormStore();
 
   // Populate form when editing
   useEffect(() => {
@@ -71,16 +63,19 @@ const FilmFormPage = () => {
     }
   }, [film, isEditMode, reset]);
 
-  const onSubmit = async (data: FilmFormData) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
     try {
       if (isEditMode && filmId) {
         // Update existing film
         const updateData: FilmUpdateRequest = {
-          title: data.title,
-          description: data.description || undefined,
-          image_path: data.image_path || undefined,
-          release_year: data.release_year || undefined,
-          rating: data.rating,
+          title,
+          description: description || undefined,
+          image_path: image_path || undefined,
+          release_year: release_year || undefined,
+          rating,
         };
         
         await updateFilmMutation.mutateAsync({
@@ -91,11 +86,11 @@ const FilmFormPage = () => {
       } else {
         // Create new film
         const createData: FilmCreateRequest = {
-          title: data.title,
-          description: data.description || undefined,
-          image_path: data.image_path || undefined,
-          release_year: data.release_year || undefined,
-          rating: data.rating,
+          title,
+          description: description || undefined,
+          image_path: image_path || undefined,
+          release_year: release_year || undefined,
+          rating,
         };
         
         await createFilmMutation.mutateAsync(createData);
@@ -124,128 +119,125 @@ const FilmFormPage = () => {
   return (
     <>
       <Header />
-      <div className="film-form-page">
-        <div className="form-container">
-          <h1>{isEditMode ? "Edit Film" : "Create New Film"}</h1>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">
+              {isEditMode ? "Edit Film" : "Create New Film"}
+            </h1>
 
-        {error && (
-          <div className="error-message">
-            Error: {error instanceof Error ? error.message : "Failed to save film"}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="film-form">
-          <div className="form-group">
-            <label htmlFor="title">
-              Title <span className="required">*</span>
-            </label>
-            <input
-              id="title"
-              type="text"
-              {...register("title", {
-                required: "Title is required",
-                minLength: {
-                  value: 1,
-                  message: "Title cannot be empty",
-                },
-              })}
-              className={errors.title ? "error" : ""}
-            />
-            {errors.title && (
-              <span className="error-text">{errors.title.message}</span>
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                Error: {error instanceof Error ? error.message : "Failed to save film"}
+              </div>
             )}
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="rating">
-              Rating <span className="required">*</span>
-            </label>
-            <select
-              id="rating"
-              {...register("rating", {
-                required: "Rating is required",
-              })}
-              className={errors.rating ? "error" : ""}
-            >
-              {RATING_VALUES.map((rating) => (
-                <option key={rating} value={rating}>
-                  {rating}
-                </option>
-              ))}
-            </select>
-            {errors.rating && (
-              <span className="error-text">{errors.rating.message}</span>
-            )}
-          </div>
+            <form onSubmit={onSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                    errors.title ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.title && (
+                  <span className="text-red-500 text-sm mt-1 block">{errors.title}</span>
+                )}
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="release_year">Release Year</label>
-            <input
-              id="release_year"
-              type="number"
-              {...register("release_year", {
-                valueAsNumber: true,
-                min: {
-                  value: 1800,
-                  message: "Release year must be between 1800 and 2100",
-                },
-                max: {
-                  value: 2100,
-                  message: "Release year must be between 1800 and 2100",
-                },
-              })}
-              className={errors.release_year ? "error" : ""}
-            />
-            {errors.release_year && (
-              <span className="error-text">{errors.release_year.message}</span>
-            )}
-          </div>
+              <div>
+                <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-1">
+                  Rating <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="rating"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value as any)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                    errors.rating ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  {RATING_VALUES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+                {errors.rating && (
+                  <span className="text-red-500 text-sm mt-1 block">{errors.rating}</span>
+                )}
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              rows={4}
-              {...register("description")}
-              className={errors.description ? "error" : ""}
-            />
-            {errors.description && (
-              <span className="error-text">{errors.description.message}</span>
-            )}
-          </div>
+              <div>
+                <label htmlFor="release_year" className="block text-sm font-medium text-gray-700 mb-1">
+                  Release Year
+                </label>
+                <input
+                  id="release_year"
+                  type="number"
+                  value={release_year || ''}
+                  onChange={(e) => setReleaseYear(e.target.value ? Number(e.target.value) : undefined)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                    errors.release_year ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.release_year && (
+                  <span className="text-red-500 text-sm mt-1 block">{errors.release_year}</span>
+                )}
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="image_path">Image Path</label>
-            <input
-              id="image_path"
-              type="text"
-              {...register("image_path")}
-              className={errors.image_path ? "error" : ""}
-              placeholder="https://example.com/image.jpg"
-            />
-            {errors.image_path && (
-              <span className="error-text">{errors.image_path.message}</span>
-            )}
-          </div>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                />
+              </div>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleCancel}
-              disabled={isPending}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isPending}
-            >
-              {isPending ? "Saving..." : isEditMode ? "Update Film" : "Create Film"}
-            </button>
+              <div>
+                <label htmlFor="image_path" className="block text-sm font-medium text-gray-700 mb-1">
+                  Image Path
+                </label>
+                <input
+                  id="image_path"
+                  type="text"
+                  value={image_path}
+                  onChange={(e) => setImagePath(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition disabled:opacity-50"
+                  onClick={handleCancel}
+                  disabled={isPending}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition disabled:opacity-50"
+                  disabled={isPending}
+                >
+                  {isPending ? "Saving..." : isEditMode ? "Update Film" : "Create Film"}
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
         </div>
       </div>
     </>

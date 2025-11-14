@@ -4,8 +4,10 @@
  */
 export interface User {
   username: string;
+  name?: string;
   email?: string;
   sub?: string; // Cognito user ID
+  email_verified?: boolean;
 }
 
 /**
@@ -36,4 +38,40 @@ export interface AuthToken {
   access_token: string;
   token_type: string;
   expires_at?: number;
+}
+
+/**
+ * Forgot Password Request
+ * Data required for password reset request
+ */
+export interface ForgotPasswordRequest {
+  username: string;
+}
+
+/**
+ * Forgot Password Response
+ * Response from forgot password endpoint
+ */
+export interface ForgotPasswordResponse {
+  message: string;
+  destination: string;
+  delivery_medium: string;
+}
+
+/**
+ * Confirm Forgot Password Request
+ * Data required for confirming password reset
+ */
+export interface ConfirmForgotPasswordRequest {
+  username: string;
+  confirmation_code: string;
+  new_password: string;
+}
+
+/**
+ * Confirm Forgot Password Response
+ * Response from confirm forgot password endpoint
+ */
+export interface ConfirmForgotPasswordResponse {
+  message: string;
 }

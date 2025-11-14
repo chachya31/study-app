@@ -1,5 +1,36 @@
-/* LoginPage Styles */
+/* ページ固有のスタイル */
 
+/* FilmListPage & ActorListPage */
+.film-list-page,
+.actor-list-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.description-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* FilmFormPage & ActorFormPage */
+.film-form-page,
+.actor-form-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.film-form,
+.actor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* LoginPage */
 .login-container {
   display: flex;
   justify-content: center;
@@ -38,12 +69,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .form-label {
@@ -100,37 +125,26 @@
   border: 1px solid #feb2b2;
 }
 
-.btn {
+.login-card .btn {
   padding: 0.875rem 1.5rem;
-  border: none;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  outline: none;
 }
 
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.btn-primary {
+.login-card .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
 }
 
-.btn-primary:hover:not(:disabled) {
+.login-card .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:active:not(:disabled) {
+.login-card .btn-primary:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Responsive design */
 @media (max-width: 480px) {
   .login-card {
     padding: 2rem 1.5rem;

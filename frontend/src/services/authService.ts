@@ -1,5 +1,13 @@
 import apiClient from "./apiClient";
-import type { LoginRequest, LoginResponse } from "../types";
+import type { 
+  LoginRequest, 
+  LoginResponse, 
+  User,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ConfirmForgotPasswordRequest,
+  ConfirmForgotPasswordResponse
+} from "../types";
 
 /**
  * Authentication Service
@@ -75,4 +83,39 @@ export const isAuthenticated = (): boolean => {
  */
 export const getAccessToken = (): string | null => {
   return localStorage.getItem("access_token");
+};
+
+/**
+ * Get user information
+ * Fetches current user information from the backend
+ * 
+ * @returns Promise with user information
+ */
+export const getUserInfo = async (): Promise<User> => {
+  const response = await apiClient.get<User>("/api/auth/user");
+  return response.data;
+};
+
+/**
+ * Forgot password
+ * Sends password reset code to user's email
+ * 
+ * @param request - Forgot password request with username
+ * @returns Promise with forgot password response
+ */
+export const forgotPassword = async (request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+  const response = await apiClient.post<ForgotPasswordResponse>("/api/auth/forgot-password", request);
+  return response.data;
+};
+
+/**
+ * Confirm forgot password
+ * Confirms password reset with code and sets new password
+ * 
+ * @param request - Confirm forgot password request
+ * @returns Promise with confirmation response
+ */
+export const confirmForgotPassword = async (request: ConfirmForgotPasswordRequest): Promise<ConfirmForgotPasswordResponse> => {
+  const response = await apiClient.post<ConfirmForgotPasswordResponse>("/api/auth/confirm-forgot-password", request);
+  return response.data;
 };
