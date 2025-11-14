@@ -49,13 +49,13 @@ const ForgotPasswordPage = () => {
           <div className="mt-8 space-y-6">
             <button
               onClick={handleGoToReset}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
             >
               パスワードをリセット
             </button>
             <button
               onClick={() => navigate("/login")}
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
             >
               ログインに戻る
             </button>
@@ -105,7 +105,7 @@ const ForgotPasswordPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
             >
               {isLoading ? "送信中..." : "リセットコードを送信"}
             </button>
@@ -115,7 +115,7 @@ const ForgotPasswordPage = () => {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="text-sm text-indigo-600 hover:text-indigo-500"
+              className="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
             >
               ログインに戻る
             </button>

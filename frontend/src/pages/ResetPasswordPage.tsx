@@ -66,7 +66,7 @@ const ResetPasswordPage = () => {
           <div className="mt-8">
             <button
               onClick={() => navigate("/login")}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
             >
               ログインページへ
             </button>
@@ -164,7 +164,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
             >
               {isLoading ? "リセット中..." : "パスワードをリセット"}
             </button>
@@ -174,7 +174,7 @@ const ResetPasswordPage = () => {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="text-sm text-indigo-600 hover:text-indigo-500"
+              className="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
             >
               ログインに戻る
             </button>

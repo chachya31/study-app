@@ -148,7 +148,7 @@ export const LoginPage = () => {
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             disabled={isSubmitting}
           >
             {isSubmitting ? "ログイン中..." : "ログイン"}
@@ -160,7 +160,7 @@ export const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => navigate("/forgot-password")}
-                className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
               >
                 パスワードを忘れた場合
               </button>

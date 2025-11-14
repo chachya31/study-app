@@ -68,7 +68,7 @@ const FilmListPage = () => {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-900">Films</h1>
             <button 
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition cursor-pointer"
               onClick={handleCreateNew}
             >
               Create New Film
@@ -102,13 +102,13 @@ const FilmListPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                         <button
-                          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition"
+                          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition cursor-pointer"
                           onClick={() => handleEdit(film.film_id)}
                         >
                           Edit
                         </button>
                         <button
-                          className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition disabled:opacity-50"
+                          className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition disabled:opacity-50 cursor-pointer"
                           onClick={() => handleDeleteClick(film)}
                           disabled={deleteFilmMutation.isPending}
                         >

@@ -147,7 +147,7 @@ export const ConfirmSignUpPage = () => {
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             disabled={isSubmitting}
           >
             {isSubmitting ? "確認中..." : "確認"}
@@ -157,7 +157,7 @@ export const ConfirmSignUpPage = () => {
           <button
             type="button"
             onClick={handleResendCode}
-            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             disabled={isResending || isSubmitting}
           >
             {isResending ? "送信中..." : "確認コードを再送信"}
@@ -168,7 +168,7 @@ export const ConfirmSignUpPage = () => {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
             >
               ログインページに戻る
             </button>

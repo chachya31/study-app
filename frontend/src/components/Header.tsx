@@ -28,14 +28,14 @@ export const Header = () => {
   const isActorsPage = location.pathname.startsWith('/actors');
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="sticky top-0 z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <h1 className="text-xl font-bold text-gray-800">Film & Actor Management</h1>
             <nav className="flex space-x-4">
               <button 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition cursor-pointer ${
                   isFilmsPage 
                     ? 'bg-blue-100 text-blue-700' 
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -45,7 +45,7 @@ export const Header = () => {
                 Films
               </button>
               <button 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition cursor-pointer ${
                   isActorsPage 
                     ? 'bg-blue-100 text-blue-700' 
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -59,7 +59,7 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">{user.username}</span>
             <button 
-              className="p-2 rounded-full hover:bg-gray-100 transition" 
+              className="p-2 rounded-full hover:bg-gray-100 transition cursor-pointer" 
               onClick={handleUserInfo}
               title="ユーザー情報"
             >
@@ -69,7 +69,7 @@ export const Header = () => {
               </svg>
             </button>
             <button 
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition" 
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition cursor-pointer" 
               onClick={handleLogout}
             >
               ログアウト

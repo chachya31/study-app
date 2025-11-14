@@ -222,7 +222,7 @@ const FilmFormPage = () => {
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
-                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition disabled:opacity-50"
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition disabled:opacity-50 cursor-pointer"
                   onClick={handleCancel}
                   disabled={isPending}
                 >
@@ -230,7 +230,7 @@ const FilmFormPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition disabled:opacity-50 cursor-pointer"
                   disabled={isPending}
                 >
                   {isPending ? "Saving..." : isEditMode ? "Update Film" : "Create Film"}

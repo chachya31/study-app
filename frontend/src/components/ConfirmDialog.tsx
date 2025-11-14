@@ -39,14 +39,14 @@ const ConfirmDialog = ({
         </div>
         <div className="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end space-x-3">
           <button
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition disabled:opacity-50 cursor-pointer"
             onClick={onCancel}
             disabled={isLoading}
           >
             {cancelLabel}
           </button>
           <button
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition disabled:opacity-50"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition disabled:opacity-50 cursor-pointer"
             onClick={onConfirm}
             disabled={isLoading}
           >
