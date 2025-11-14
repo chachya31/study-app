@@ -1,4 +1,5 @@
 """Actor API スキーマ"""
+from typing import List
 from pydantic import BaseModel
 
 
@@ -19,3 +20,8 @@ class ActorResponse(BaseModel):
     class Config:
         """Pydantic 設定"""
         from_attributes = True
+
+
+class ActorsListResponse(BaseModel):
+    """Films リストレスポンスモデル"""
+    actors: List[ActorResponse]

@@ -12,13 +12,13 @@ from backend.use_cases.get_actor_by_id_use_case import GetActorByIdUseCase
 from backend.use_cases.update_actor_use_case import UpdateActorUseCase
 from backend.use_cases.delete_actor_use_case import DeleteActorUseCase
 from backend.exceptions import ValidationError, NotFoundError, DatabaseError
-from backend.schemas.actor_schemas import ActorRequest, ActorResponse
+from backend.schemas.actor_schemas import ActorRequest, ActorResponse, ActorsListResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/actors", tags=["actors"])
 
 
-@router.get("", response_model=List[ActorResponse], status_code=status.HTTP_200_OK)
+@router.get("", response_model=ActorsListResponse, status_code=status.HTTP_200_OK)
 async def get_actors(
     repository: ActorRepository = Depends(get_actor_repository),
     current_user: Dict[str, Any] = Depends(get_current_user)
@@ -41,9 +41,9 @@ async def get_actors(
         use_case = GetActorsUseCase(repository)
         actors = use_case.execute()
         logger.info(f"アクターを {len(actors)} 件取得しました")
-        return [
+        actors_responses = [
             ActorResponse(
-                actor_id=actor.actor_id,
+                actor_id=str(actor.actor_id),
                 first_name=actor.first_name,
                 last_name=actor.last_name,
                 last_update=actor.last_update.isoformat(),
@@ -51,6 +51,7 @@ async def get_actors(
             )
             for actor in actors
         ]
+        return ActorsListResponse(actors=actors_responses)
     except Exception as e:
         logger.error(f"アクターの取得中にエラーが発生: {str(e)}", exc_info=True)
         raise DatabaseError(f"アクターの取得中にエラーが発生しました: {str(e)}") from e
@@ -125,7 +126,7 @@ async def get_actor(
         actor = use_case.execute(actor_id)
         logger.info(f"アクターを取得しました: ID={actor_id}")
         return ActorResponse(
-            actor_id=actor.actor_id,
+            actor_id=str(actor.actor_id),
             first_name=actor.first_name,
             last_name=actor.last_name,
             last_update=actor.last_update.isoformat(),
