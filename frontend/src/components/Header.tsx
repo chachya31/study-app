@@ -17,8 +17,7 @@ export const Header = () => {
   };
 
   const handleUserInfo = () => {
-    // TODO: Navigate to user info page when implemented
-    alert(`ユーザー情報:\nユーザー名: ${user?.username}\nメール: ${user?.email || '未設定'}`);
+    navigate('/profile');
   };
 
   if (!user) {

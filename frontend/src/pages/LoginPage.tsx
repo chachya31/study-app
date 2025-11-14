@@ -146,6 +146,17 @@ export const LoginPage = () => {
           >
             {isSubmitting ? "ログイン中..." : "ログイン"}
           </button>
+
+          {/* Forgot password link */}
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              パスワードを忘れた場合
+            </button>
+          </div>
         </form>
       </div>
     </div>

@@ -25,7 +25,7 @@ class CognitoAuthService(AuthService):
 
         self.client = boto3.client("cognito-idp", **session_kwargs)
 
-    def authenticate(self, username: str, password: str) -> Dict[str, str]:
+    def authenticate(self, username: str, password: str) -> Dict[str, Any]:
         """
         ユーザーを認証する
 
@@ -118,6 +118,7 @@ class CognitoAuthService(AuthService):
                 "sub": user_attributes.get("sub"),
                 "email": user_attributes.get("email"),
                 "email_verified": user_attributes.get("email_verified") == "true",
+                "name": user_attributes.get("name"),
                 "attributes": user_attributes,
             }
 
@@ -131,6 +132,105 @@ class CognitoAuthService(AuthService):
                 raise AuthenticationError("ユーザーが見つかりません")
             else:
                 raise AuthenticationError(f"トークン検証エラー: {error_message}")
+
+        except Exception as e:
+            raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")
+
+    def forgot_password(self, username: str) -> Dict[str, str]:
+        """
+        パスワードリセットコードを送信する
+
+        Args:
+            username: ユーザー名
+
+        Returns:
+            送信結果を含む辞書
+            {
+                "message": str,
+                "code_delivery_details": dict
+            }
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        try:
+            response = self.client.forgot_password(
+                ClientId=self.client_id,
+                Username=username,
+            )
+
+            delivery_details = response.get("CodeDeliveryDetails", {})
+            
+            return {
+                "message": "パスワードリセットコードを送信しました",
+                "destination": delivery_details.get("Destination", ""),
+                "delivery_medium": delivery_details.get("DeliveryMedium", "EMAIL"),
+            }
+
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            error_message = e.response["Error"]["Message"]
+
+            if error_code == "UserNotFoundException":
+                raise AuthenticationError("ユーザーが見つかりません")
+            elif error_code == "InvalidParameterException":
+                raise AuthenticationError("無効なパラメータです")
+            elif error_code == "LimitExceededException":
+                raise AuthenticationError("試行回数の上限に達しました。しばらくしてから再試行してください")
+            elif error_code == "TooManyRequestsException":
+                raise AuthenticationError("リクエストが多すぎます。しばらくしてから再試行してください")
+            else:
+                raise AuthenticationError(f"パスワードリセットエラー: {error_message}")
+
+        except Exception as e:
+            raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")
+
+    def confirm_forgot_password(self, username: str, confirmation_code: str, new_password: str) -> Dict[str, str]:
+        """
+        パスワードリセットを確認して新しいパスワードを設定する
+
+        Args:
+            username: ユーザー名
+            confirmation_code: 確認コード
+            new_password: 新しいパスワード
+
+        Returns:
+            成功メッセージを含む辞書
+            {
+                "message": str
+            }
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        try:
+            self.client.confirm_forgot_password(
+                ClientId=self.client_id,
+                Username=username,
+                ConfirmationCode=confirmation_code,
+                Password=new_password,
+            )
+
+            return {
+                "message": "パスワードが正常にリセットされました"
+            }
+
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            error_message = e.response["Error"]["Message"]
+
+            if error_code == "CodeMismatchException":
+                raise AuthenticationError("確認コードが正しくありません")
+            elif error_code == "ExpiredCodeException":
+                raise AuthenticationError("確認コードの有効期限が切れています")
+            elif error_code == "InvalidPasswordException":
+                raise AuthenticationError("パスワードがポリシーに準拠していません")
+            elif error_code == "UserNotFoundException":
+                raise AuthenticationError("ユーザーが見つかりません")
+            elif error_code == "TooManyFailedAttemptsException":
+                raise AuthenticationError("試行回数が多すぎます。しばらくしてから再試行してください")
+            else:
+                raise AuthenticationError(f"パスワード確認エラー: {error_message}")
 
         except Exception as e:
             raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")

@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+/* 共通スタイルのインポート */
+@import "./styles/common.css";
+@import "./styles/components.css";
+@import "./styles/pages.css";
