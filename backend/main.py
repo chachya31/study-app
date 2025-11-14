@@ -1,4 +1,5 @@
 """FastAPI メインアプリケーション"""
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,6 +9,15 @@ from backend.error_handlers import (
     register_exception_handlers
 )
 
+# ロギング設定
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = logging.getLogger(__name__)
+
 
 def create_app() -> FastAPI:
     """
@@ -16,6 +26,10 @@ def create_app() -> FastAPI:
     Returns:
         FastAPI: 設定済みの FastAPI アプリケーションインスタンス
     """
+    logger.info(f"Creating FastAPI application: {settings.app_name}")
+    logger.info(f"Debug mode: {settings.debug}")
+    logger.info(f"Database type: {settings.database_type}")
+    
     app = FastAPI(
         title=settings.app_name,
         debug=settings.debug,

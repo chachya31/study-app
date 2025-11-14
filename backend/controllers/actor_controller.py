@@ -1,6 +1,7 @@
 """Actor コントローラー"""
+import logging
 from typing import List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from backend.repositories.actor_repository import ActorRepository
 from backend.controllers.dependencies import get_actor_repository
@@ -10,10 +11,10 @@ from backend.use_cases.get_actors_use_case import GetActorsUseCase
 from backend.use_cases.get_actor_by_id_use_case import GetActorByIdUseCase
 from backend.use_cases.update_actor_use_case import UpdateActorUseCase
 from backend.use_cases.delete_actor_use_case import DeleteActorUseCase
-from backend.exceptions import ValidationError, NotFoundError
+from backend.exceptions import ValidationError, NotFoundError, DatabaseError
 from backend.schemas.actor_schemas import ActorRequest, ActorResponse
 
-
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/actors", tags=["actors"])
 
 
@@ -36,8 +37,10 @@ async def get_actors(
         HTTPException: データベース操作に失敗した場合
     """
     try:
+        logger.info("全アクターの取得を開始")
         use_case = GetActorsUseCase(repository)
         actors = use_case.execute()
+        logger.info(f"アクターを {len(actors)} 件取得しました")
         return [
             ActorResponse(
                 actor_id=actor.actor_id,
@@ -49,10 +52,8 @@ async def get_actors(
             for actor in actors
         ]
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"アクターの取得中にエラーが発生しました: {str(e)}"
-        )
+        logger.error(f"アクターの取得中にエラーが発生: {str(e)}", exc_info=True)
+        raise DatabaseError(f"アクターの取得中にエラーが発生しました: {str(e)}") from e
 
 
 @router.post("", response_model=ActorResponse, status_code=status.HTTP_201_CREATED)
@@ -76,11 +77,13 @@ async def create_actor(
         HTTPException: 検証エラーまたはデータベース操作に失敗した場合
     """
     try:
+        logger.info(f"アクターの作成を開始: {request.first_name} {request.last_name}")
         use_case = CreateActorUseCase(repository)
         actor = use_case.execute(
             first_name=request.first_name,
             last_name=request.last_name
         )
+        logger.info(f"アクターを作成しました: ID={actor.actor_id}")
         return ActorResponse(
             actor_id=actor.actor_id,
             first_name=actor.first_name,
@@ -89,15 +92,11 @@ async def create_actor(
             delete_flag=actor.delete_flag
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        logger.warning(f"アクター作成の検証エラー: {str(e)}")
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"アクターの作成中にエラーが発生しました: {str(e)}"
-        )
+        logger.error(f"アクターの作成中にエラーが発生: {str(e)}", exc_info=True)
+        raise DatabaseError(f"アクターの作成中にエラーが発生しました: {str(e)}") from e
 
 
 @router.get("/{actor_id}", response_model=ActorResponse, status_code=status.HTTP_200_OK)
@@ -121,8 +120,10 @@ async def get_actor(
         HTTPException: アクターが見つからない場合またはデータベース操作に失敗した場合
     """
     try:
+        logger.info(f"アクターの取得を開始: ID={actor_id}")
         use_case = GetActorByIdUseCase(repository)
         actor = use_case.execute(actor_id)
+        logger.info(f"アクターを取得しました: ID={actor_id}")
         return ActorResponse(
             actor_id=actor.actor_id,
             first_name=actor.first_name,
@@ -131,15 +132,11 @@ async def get_actor(
             delete_flag=actor.delete_flag
         )
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        logger.warning(f"アクターが見つかりません: ID={actor_id}")
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"アクターの取得中にエラーが発生しました: {str(e)}"
-        )
+        logger.error(f"アクターの取得中にエラーが発生: ID={actor_id}, {str(e)}", exc_info=True)
+        raise DatabaseError(f"アクターの取得中にエラーが発生しました: {str(e)}") from e
 
 
 @router.put("/{actor_id}", response_model=ActorResponse, status_code=status.HTTP_200_OK)
@@ -165,12 +162,14 @@ async def update_actor(
         HTTPException: 検証エラー、アクターが見つからない場合、またはデータベース操作に失敗した場合
     """
     try:
+        logger.info(f"アクターの更新を開始: ID={actor_id}")
         use_case = UpdateActorUseCase(repository)
         actor = use_case.execute(
             actor_id=actor_id,
             first_name=request.first_name,
             last_name=request.last_name
         )
+        logger.info(f"アクターを更新しました: ID={actor_id}")
         return ActorResponse(
             actor_id=actor.actor_id,
             first_name=actor.first_name,
@@ -179,20 +178,14 @@ async def update_actor(
             delete_flag=actor.delete_flag
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        logger.warning(f"アクター更新の検証エラー: ID={actor_id}, {str(e)}")
+        raise
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        logger.warning(f"アクターが見つかりません: ID={actor_id}")
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"アクターの更新中にエラーが発生しました: {str(e)}"
-        )
+        logger.error(f"アクターの更新中にエラーが発生: ID={actor_id}, {str(e)}", exc_info=True)
+        raise DatabaseError(f"アクターの更新中にエラーが発生しました: {str(e)}") from e
 
 
 @router.delete("/{actor_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -213,15 +206,13 @@ async def delete_actor(
         HTTPException: アクターが見つからない場合またはデータベース操作に失敗した場合
     """
     try:
+        logger.info(f"アクターの削除を開始: ID={actor_id}")
         use_case = DeleteActorUseCase(repository)
         use_case.execute(actor_id)
+        logger.info(f"アクターを削除しました: ID={actor_id}")
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        logger.warning(f"アクターが見つかりません: ID={actor_id}")
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"アクターの削除中にエラーが発生しました: {str(e)}"
-        )
+        logger.error(f"アクターの削除中にエラーが発生: ID={actor_id}, {str(e)}", exc_info=True)
+        raise DatabaseError(f"アクターの削除中にエラーが発生しました: {str(e)}") from e
