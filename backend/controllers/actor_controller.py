@@ -1,7 +1,6 @@
 """Actor コントローラー"""
 from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 
 from backend.repositories.actor_repository import ActorRepository
 from backend.controllers.dependencies import get_actor_repository
@@ -12,27 +11,10 @@ from backend.use_cases.get_actor_by_id_use_case import GetActorByIdUseCase
 from backend.use_cases.update_actor_use_case import UpdateActorUseCase
 from backend.use_cases.delete_actor_use_case import DeleteActorUseCase
 from backend.exceptions import ValidationError, NotFoundError
+from backend.schemas.actor_schemas import ActorRequest, ActorResponse
 
 
 router = APIRouter(prefix="/api/actors", tags=["actors"])
-
-
-class ActorRequest(BaseModel):
-    """Actor 作成・更新リクエストモデル"""
-    first_name: str
-    last_name: str
-
-
-class ActorResponse(BaseModel):
-    """Actor レスポンスモデル"""
-    actor_id: str
-    first_name: str
-    last_name: str
-    last_update: str
-    delete_flag: bool
-
-    class Config:
-        from_attributes = True
 
 
 @router.get("", response_model=List[ActorResponse], status_code=status.HTTP_200_OK)

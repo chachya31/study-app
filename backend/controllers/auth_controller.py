@@ -1,65 +1,21 @@
 """認証コントローラー"""
 from fastapi import APIRouter, Depends, HTTPException, status, Header
-from pydantic import BaseModel
-from typing import Optional
 
 from backend.services.auth_service import AuthService
 from backend.services.auth_middleware import get_auth_service
 from backend.exceptions import AuthenticationError
+from backend.schemas.auth_schemas import (
+    LoginRequest,
+    LoginResponse,
+    UserInfoResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    ConfirmForgotPasswordRequest,
+    ConfirmForgotPasswordResponse
+)
 
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
-
-
-class LoginRequest(BaseModel):
-    """ログインリクエストモデル"""
-    username: str
-    password: str
-
-
-class LoginResponse(BaseModel):
-    """ログインレスポンスモデル"""
-    access_token: str
-    id_token: str
-    refresh_token: str
-    token_type: str
-    expires_in: int
-
-    class Config:
-        from_attributes = True
-
-
-class UserInfoResponse(BaseModel):
-    """ユーザー情報レスポンスモデル"""
-    username: str
-    name: str
-    sub: str
-    email: Optional[str] = None
-    email_verified: Optional[bool] = None
-
-
-class ForgotPasswordRequest(BaseModel):
-    """パスワード忘れリクエストモデル"""
-    username: str
-
-
-class ForgotPasswordResponse(BaseModel):
-    """パスワード忘れレスポンスモデル"""
-    message: str
-    destination: str
-    delivery_medium: str
-
-
-class ConfirmForgotPasswordRequest(BaseModel):
-    """パスワードリセット確認リクエストモデル"""
-    username: str
-    confirmation_code: str
-    new_password: str
-
-
-class ConfirmForgotPasswordResponse(BaseModel):
-    """パスワードリセット確認レスポンスモデル"""
-    message: str
 
 
 @router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)

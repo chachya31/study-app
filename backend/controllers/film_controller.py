@@ -1,9 +1,7 @@
 """Film コントローラー"""
-from typing import List, Optional, Dict, Any
+from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 
-from backend.entities.rating import Rating
 from backend.repositories.film_repository import FilmRepository
 from backend.controllers.dependencies import get_film_repository
 from backend.services.auth_middleware import get_current_user
@@ -13,38 +11,14 @@ from backend.use_cases.get_film_by_id_use_case import GetFilmByIdUseCase
 from backend.use_cases.update_film_use_case import UpdateFilmUseCase
 from backend.use_cases.delete_film_use_case import DeleteFilmUseCase
 from backend.exceptions import ValidationError, NotFoundError
+from backend.schemas.film_schemas import (
+    FilmRequest,
+    FilmResponse,
+    FilmsListResponse
+)
 
 
 router = APIRouter(prefix="/api/films", tags=["films"])
-
-
-class FilmRequest(BaseModel):
-    """Film 作成・更新リクエストモデル"""
-    title: str
-    rating: Rating
-    description: Optional[str] = None
-    image_path: Optional[str] = None
-    release_year: Optional[int] = None
-
-
-class FilmResponse(BaseModel):
-    """Film レスポンスモデル"""
-    film_id: str
-    title: str
-    rating: Rating
-    description: Optional[str] = None
-    image_path: Optional[str] = None
-    release_year: Optional[int] = None
-    last_update: str
-    delete_flag: bool
-
-    class Config:
-        from_attributes = True
-
-
-class FilmsListResponse(BaseModel):
-    """Films リストレスポンスモデル"""
-    films: List[FilmResponse]
 
 
 @router.get("", response_model=FilmsListResponse, status_code=status.HTTP_200_OK)
