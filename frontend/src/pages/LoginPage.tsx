@@ -74,9 +74,16 @@ export const LoginPage = () => {
       showSuccess("Login successful!");
       reset();
       // Navigation will happen automatically via useEffect when isAuthenticated changes
-    } catch (err) {
-      // Error is handled by the auth context and displayed via toast
-      console.error("Login failed:", err);
+    } catch (err: any) {
+      // Check if error is due to unconfirmed user
+      const errorMessage = err.detail || "ログインに失敗しました";
+      if (err.status == 401 && (errorMessage.includes("確認されていません") || errorMessage.includes("UserNotConfirmed"))) {
+        showError("ユーザーが確認されていません。確認ページに移動します。");
+        navigate("/confirm-signup", { state: { username } });
+      } else {
+        // Error is handled by the auth context and displayed via toast
+        console.error("Login failed:", err);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -147,15 +154,17 @@ export const LoginPage = () => {
             {isSubmitting ? "ログイン中..." : "ログイン"}
           </button>
 
-          {/* Forgot password link */}
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              onClick={() => navigate("/forgot-password")}
-              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              パスワードを忘れた場合
-            </button>
+          {/* Additional links */}
+          <div className="text-center mt-4 space-y-2">
+            <div>
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                パスワードを忘れた場合
+              </button>
+            </div>
           </div>
         </form>
       </div>

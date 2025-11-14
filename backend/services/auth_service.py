@@ -72,3 +72,36 @@ class AuthService(ABC):
             AuthenticationError: リクエストに失敗した場合
         """
         pass
+
+    @abstractmethod
+    def confirm_sign_up(self, username: str, confirmation_code: str) -> Dict[str, str]:
+        """
+        ユーザー登録を確認する
+
+        Args:
+            username: ユーザー名
+            confirmation_code: 確認コード
+
+        Returns:
+            成功メッセージを含む辞書
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        pass
+
+    @abstractmethod
+    def resend_confirmation_code(self, username: str) -> Dict[str, str]:
+        """
+        確認コードを再送信する
+
+        Args:
+            username: ユーザー名
+
+        Returns:
+            送信結果を含む辞書
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        pass

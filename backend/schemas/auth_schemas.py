@@ -53,3 +53,26 @@ class ConfirmForgotPasswordRequest(BaseModel):
 class ConfirmForgotPasswordResponse(BaseModel):
     """パスワードリセット確認レスポンスモデル"""
     message: str
+
+
+class ConfirmSignUpRequest(BaseModel):
+    """ユーザー確認リクエストモデル"""
+    username: str
+    confirmation_code: str
+
+
+class ConfirmSignUpResponse(BaseModel):
+    """ユーザー確認レスポンスモデル"""
+    message: str
+
+
+class ResendConfirmationCodeRequest(BaseModel):
+    """確認コード再送信リクエストモデル"""
+    username: str
+
+
+class ResendConfirmationCodeResponse(BaseModel):
+    """確認コード再送信レスポンスモデル"""
+    message: str
+    destination: str
+    delivery_medium: str

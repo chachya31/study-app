@@ -75,3 +75,38 @@ export interface ConfirmForgotPasswordRequest {
 export interface ConfirmForgotPasswordResponse {
   message: string;
 }
+
+/**
+ * Confirm Sign Up Request
+ * Data required for confirming user registration
+ */
+export interface ConfirmSignUpRequest {
+  username: string;
+  confirmation_code: string;
+}
+
+/**
+ * Confirm Sign Up Response
+ * Response from confirm sign up endpoint
+ */
+export interface ConfirmSignUpResponse {
+  message: string;
+}
+
+/**
+ * Resend Confirmation Code Request
+ * Data required for resending confirmation code
+ */
+export interface ResendConfirmationCodeRequest {
+  username: string;
+}
+
+/**
+ * Resend Confirmation Code Response
+ * Response from resend confirmation code endpoint
+ */
+export interface ResendConfirmationCodeResponse {
+  message: string;
+  destination: string;
+  delivery_medium: string;
+}

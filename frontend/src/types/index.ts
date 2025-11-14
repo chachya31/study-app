@@ -34,6 +34,10 @@ export type {
   ForgotPasswordResponse,
   ConfirmForgotPasswordRequest,
   ConfirmForgotPasswordResponse,
+  ConfirmSignUpRequest,
+  ConfirmSignUpResponse,
+  ResendConfirmationCodeRequest,
+  ResendConfirmationCodeResponse,
 } from "./user";
 
 // API types

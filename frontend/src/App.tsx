@@ -13,6 +13,7 @@ import {
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
+import ConfirmSignUpPage from './pages/ConfirmSignUpPage';
 
 /**
  * Create QueryClient instance for TanStack Query
@@ -53,6 +54,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/confirm-signup" element={<ConfirmSignUpPage />} />
 
             {/* Protected routes - Profile */}
             <Route

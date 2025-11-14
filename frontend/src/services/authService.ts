@@ -6,7 +6,11 @@ import type {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ConfirmForgotPasswordRequest,
-  ConfirmForgotPasswordResponse
+  ConfirmForgotPasswordResponse,
+  ConfirmSignUpRequest,
+  ConfirmSignUpResponse,
+  ResendConfirmationCodeRequest,
+  ResendConfirmationCodeResponse
 } from "../types";
 
 /**
@@ -117,5 +121,29 @@ export const forgotPassword = async (request: ForgotPasswordRequest): Promise<Fo
  */
 export const confirmForgotPassword = async (request: ConfirmForgotPasswordRequest): Promise<ConfirmForgotPasswordResponse> => {
   const response = await apiClient.post<ConfirmForgotPasswordResponse>("/api/auth/confirm-forgot-password", request);
+  return response.data;
+};
+
+/**
+ * Confirm sign up
+ * Confirms user registration with confirmation code
+ * 
+ * @param request - Confirm sign up request
+ * @returns Promise with confirmation response
+ */
+export const confirmSignUp = async (request: ConfirmSignUpRequest): Promise<ConfirmSignUpResponse> => {
+  const response = await apiClient.post<ConfirmSignUpResponse>("/api/auth/confirm-signup", request);
+  return response.data;
+};
+
+/**
+ * Resend confirmation code
+ * Resends the confirmation code to user's email
+ * 
+ * @param request - Resend confirmation code request
+ * @returns Promise with resend response
+ */
+export const resendConfirmationCode = async (request: ResendConfirmationCodeRequest): Promise<ResendConfirmationCodeResponse> => {
+  const response = await apiClient.post<ResendConfirmationCodeResponse>("/api/auth/resend-confirmation-code", request);
   return response.data;
 };

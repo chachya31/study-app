@@ -57,6 +57,7 @@ class CognitoAuthService(AuthService):
             )
 
             auth_result = response.get("AuthenticationResult")
+            print("★authResult", auth_result)
             if not auth_result:
                 raise AuthenticationError("認証に失敗しました")
 
@@ -231,6 +232,104 @@ class CognitoAuthService(AuthService):
                 raise AuthenticationError("試行回数が多すぎます。しばらくしてから再試行してください")
             else:
                 raise AuthenticationError(f"パスワード確認エラー: {error_message}")
+
+        except Exception as e:
+            raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")
+
+    def confirm_sign_up(self, username: str, confirmation_code: str) -> Dict[str, str]:
+        """
+        ユーザー登録を確認する
+
+        Args:
+            username: ユーザー名
+            confirmation_code: 確認コード
+
+        Returns:
+            成功メッセージを含む辞書
+            {
+                "message": str
+            }
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        try:
+            self.client.confirm_sign_up(
+                ClientId=self.client_id,
+                Username=username,
+                ConfirmationCode=confirmation_code,
+            )
+
+            return {
+                "message": "ユーザーが正常に確認されました"
+            }
+
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            error_message = e.response["Error"]["Message"]
+
+            if error_code == "CodeMismatchException":
+                raise AuthenticationError("確認コードが正しくありません")
+            elif error_code == "ExpiredCodeException":
+                raise AuthenticationError("確認コードの有効期限が切れています")
+            elif error_code == "UserNotFoundException":
+                raise AuthenticationError("ユーザーが見つかりません")
+            elif error_code == "NotAuthorizedException":
+                raise AuthenticationError("ユーザーは既に確認済みです")
+            elif error_code == "TooManyFailedAttemptsException":
+                raise AuthenticationError("試行回数が多すぎます。しばらくしてから再試行してください")
+            else:
+                raise AuthenticationError(f"ユーザー確認エラー: {error_message}")
+
+        except Exception as e:
+            raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")
+
+    def resend_confirmation_code(self, username: str) -> Dict[str, str]:
+        """
+        確認コードを再送信する
+
+        Args:
+            username: ユーザー名
+
+        Returns:
+            送信結果を含む辞書
+            {
+                "message": str,
+                "destination": str,
+                "delivery_medium": str
+            }
+
+        Raises:
+            AuthenticationError: リクエストに失敗した場合
+        """
+        try:
+            response = self.client.resend_confirmation_code(
+                ClientId=self.client_id,
+                Username=username,
+            )
+
+            delivery_details = response.get("CodeDeliveryDetails", {})
+
+            return {
+                "message": "確認コードを再送信しました",
+                "destination": delivery_details.get("Destination", ""),
+                "delivery_medium": delivery_details.get("DeliveryMedium", "EMAIL"),
+            }
+
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            error_message = e.response["Error"]["Message"]
+
+            if error_code == "UserNotFoundException":
+                raise AuthenticationError("ユーザーが見つかりません")
+            elif error_code == "InvalidParameterException":
+                raise AuthenticationError("ユーザーは既に確認済みです")
+            elif error_code == "LimitExceededException":
+                raise AuthenticationError("試行回数の上限に達しました。しばらくしてから再試行してください")
+            elif error_code == "TooManyRequestsException":
+                raise AuthenticationError("リクエストが多すぎます。しばらくしてから再試行してください")
+            else:
+                raise AuthenticationError(f"確認コード再送信エラー: {error_message}")
 
         except Exception as e:
             raise AuthenticationError(f"予期しないエラーが発生しました: {str(e)}")
